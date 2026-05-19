@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/world.dir/main.cpp.o CMakeFiles/world.dir/world.cpp.o -o world  FTXUI_build/libftxui-screen.a FTXUI_build/libftxui-dom.a FTXUI_build/libftxui-component.a FTXUI_build/libftxui-dom.a FTXUI_build/libftxui-screen.a 
