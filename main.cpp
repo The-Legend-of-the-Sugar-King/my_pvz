@@ -175,7 +175,17 @@ if(game_state==MENU)
             current_select=2;
             return true;
         }
+        if(event == Event::Character("3"))
+        {
+            current_select=3;
+            return true;
+        }
 
+        if(event == Event::Character("4"))
+        {
+            current_select=4;
+            return true;
+        }
         if(event == Event::Character("5"))
         {
             current_select=5;
@@ -230,10 +240,57 @@ begin_time++;
 
     update_all();
 
-    if(begin_time%150==0)
+int zombie_cd=150;
+
+// 1分钟后
+if(begin_time>600)
+{
+    zombie_cd=120;
+}
+
+// 2分钟后
+if(begin_time>1200)
+{
+    zombie_cd=90;
+}
+
+// 3分钟后
+if(begin_time>1800)
+{
+    zombie_cd=60;
+}
+
+// 4分钟后
+if(begin_time>2400)
+{
+    zombie_cd=40;
+}
+
+// 5分钟后
+if(begin_time>3000)
+{
+    zombie_cd=25;
+}
+
+// 刷怪
+if(begin_time%zombie_cd==0)
+{
+    int count=1;
+
+    if(begin_time>1200)
+        count=2;
+
+    if(begin_time>2400)
+        count=3;
+
+    if(begin_time>3600)
+        count=5;
+
+    for(int i=0;i<count;i++)
     {
         creat_zombie();
     }
+}
 
     if(!judge())
     {
