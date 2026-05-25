@@ -2,6 +2,7 @@
 #include <vector>
 #include <utility>
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/component/event.hpp>
 #include <iostream>
 using namespace std;
 typedef pair<int ,int> PII;
@@ -11,8 +12,10 @@ enum GameState
 {
     MENU,
     PLAYING,
+    PAUSE,
     GAME_OVER
 };
+
 
 //前向声明区
 class shot;
@@ -47,7 +50,7 @@ void draw();
 void creat_zombie();
 void update_all();
 bool judge();
-void player_input();
+void player_input(ftxui::Event event);
 //void game_clock();
 void clear_dead();
 void remove_plant(PII coord);

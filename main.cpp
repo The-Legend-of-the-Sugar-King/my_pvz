@@ -33,7 +33,22 @@ int main()
 // =========================
 // 菜单控制
 // =========================
+   // =========================
+    // ESC暂停
+    // =========================
+    if(event == Event::Escape)
+    {
+        if(game_state == PLAYING)
+        {
+            game_state = PAUSE;
+        }
+        else if(game_state == PAUSE)
+        {
+            game_state = PLAYING;
+        }
 
+        return true;
+    }
 if(game_state==MENU)
 {
     if(event == Event::Character("w"))
@@ -82,6 +97,25 @@ if(game_state==MENU)
 
     return false;
 }
+
+    // =========================
+    // 暂停状态
+    // =========================
+    if(game_state == PAUSE)
+    {
+        // Q退出
+        if(event == Event::Character("q"))
+        {
+            running=false;
+
+            screen.ExitLoopClosure()();
+
+            return true;
+        }
+
+        return true;
+    }
+
         // 游戏结束后按Q退出
        if(game_state == GAME_OVER)
         {

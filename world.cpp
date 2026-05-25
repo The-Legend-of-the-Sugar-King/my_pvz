@@ -6,6 +6,7 @@
 #include <chrono>
 #include "tool.hpp"
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/component/event.hpp>
 using namespace ftxui;
 using namespace std;
 const int lim_row=6,lim_col=9;
@@ -130,8 +131,8 @@ cout << "该位置已经有植物！" << endl;
 //绘制地图
 Element draw_map()
 {
- // =========================
-    // 菜单界面
+    // =========================
+    // 主菜单
     // =========================
     if(game_state == MENU)
     {
@@ -177,26 +178,71 @@ Element draw_map()
             filler()
         });
     }
-if(game_state == GAME_OVER)
-{
-    return vbox({
 
-        filler(),
+    // =========================
+    // 暂停菜单
+    // =========================
+    if(game_state == PAUSE)
+    {
+        return vbox({
 
-        text("你的脑子被僵尸吃掉了")
-        | bold
-        | center,
+            filler(),
 
-        text("GAME OVER")
-        | bold
-        | center,
+            hbox({
+                filler(),
 
-        filler()
+                window(
+                    text("游戏暂停") | bold | center,
 
-    }) | borderDouble;
-}
+                    vbox({
+                        separator(),
+                        text("ESC 继续游戏") | center,
+                        separator(),
+                        text("Q 退出游戏") | center,
+                        separator(),
+                        text("WASD 移动") | center,
+                        separator(),
+                        text("1/2/5 选择植物") | center
+                    })
 
-vector<Element> rows;
+                ) | size(WIDTH, EQUAL, 40),
+
+                filler()
+            }),
+
+            filler()
+
+        });
+    }
+    // =========================
+    // 游戏结束
+    // =========================
+    if(game_state == GAME_OVER)
+    {
+        return vbox({
+
+            filler(),
+
+            text("你的脑子被僵尸吃掉了")
+            | bold
+            | center,
+
+            text("GAME OVER")
+            | bold
+            | center,
+
+            text("按 Q 退出")
+            | center,
+
+            filler()
+
+        }) | borderDouble;
+    }
+
+    // =========================
+    // 游戏地图
+    // =========================
+    vector<Element> rows;
 
     for(int i=0;i<lim_row;i++)
     {
@@ -209,6 +255,7 @@ vector<Element> rows;
 
             bool has_zombie=false;
 
+            // 僵尸
             for(int k=0;k<zombie_table.size();k++)
             {
                 if(zombie_table[k]!=nullptr &&
@@ -222,6 +269,7 @@ vector<Element> rows;
                 }
             }
 
+            // 子弹
             if(!has_zombie)
             {
                 bool has_shot=false;
@@ -239,6 +287,7 @@ vector<Element> rows;
                     }
                 }
 
+                // 植物
                 if(!has_shot &&
                    earth[i][j]!=nullptr)
                 {
@@ -250,7 +299,7 @@ vector<Element> rows;
                     else if(earth[i][j]->type==2)
                     {
                         icon="🌻";
-                        name="向日";
+                        name="向日葵";
                     }
                     else if(earth[i][j]->type==5)
                     {
@@ -263,17 +312,23 @@ vector<Element> rows;
             Element cell =
                 window(
                     text(icon),
+
                     vbox({
                         text(icon) | center,
+                        separator(),
                         text(name) | center
                     })
                 )
-                | size(WIDTH,EQUAL,10);
+                | size(WIDTH,EQUAL,12);
 
+            // 光标高亮
             if(i==cursor_row &&
                j==cursor_col)
             {
-                cell = cell | borderDouble;
+                cell =
+                    cell
+                    | borderDouble
+                    | bold;
             }
 
             cols.push_back(cell);
@@ -282,8 +337,19 @@ vector<Element> rows;
         rows.push_back(hbox(cols));
     }
 
-    return vbox(rows);
+    return vbox({
+
+        text("WASD移动  1/2/5选择植物  空格种植  X铲除  ESC暂停")
+        | center
+        | bold,
+
+        separator(),
+
+        vbox(rows)
+
+    });
 }
+
 // void draw()
 // {
 // cout<<"sun:"<<current_sun<<endl;
@@ -377,31 +443,79 @@ zombie_father *z=new zombie_father;
 zombie_table.push_back(z);
 }
 
-void player_input()
+void player_input(ftxui::Event event)
 {
-int type;
-int row;
-int col;
+    // ESC 暂停
+    if(event == ftxui::Event::Escape)
+    {
+        if(game_state == PLAYING)
+        {
+            game_state = PAUSE;
+        }
+        else if(game_state == PAUSE)
+        {
+            game_state = PLAYING;
+        }
+    }
 
-cout<<"----------------"<<endl;
-cout<<"输入植物类型 行 列"<<endl;
-cout<<"1:豌豆射手"<<endl;
-cout<<"2:向日葵"<<endl;
-cout<<"5:坚果墙"<<endl;
-cout<<"输入 -1 跳过"<<endl;
+    // Q 退出
+    if(event == ftxui::Event::Character('q'))
+    {
+        running = false;
+    }
 
-cin>>type;
+    // 只有游戏中才能操作
+    if(game_state != PLAYING)
+    {
+        return;
+    }
 
-//跳过本回合
-if(type==-1)
-{
-    return;
-}
+    // 光标移动
+    if(event == ftxui::Event::ArrowUp)
+    {
+        cursor_row--;
+    }
 
-cin>>row>>col;
+    if(event == ftxui::Event::ArrowDown)
+    {
+        cursor_row++;
+    }
 
-plant(type,{row,col});
+    if(event == ftxui::Event::ArrowLeft)
+    {
+        cursor_col--;
+    }
 
+    if(event == ftxui::Event::ArrowRight)
+    {
+        cursor_col++;
+    }
+
+    // 防止越界
+    cursor_row=max(0,min(cursor_row,lim_row-1));
+    cursor_col=max(0,min(cursor_col,lim_col-1));
+
+    // 选择植物
+    if(event == ftxui::Event::Character('1'))
+    {
+        current_select=1;
+    }
+
+    if(event == ftxui::Event::Character('2'))
+    {
+        current_select=2;
+    }
+
+    if(event == ftxui::Event::Character('5'))
+    {
+        current_select=5;
+    }
+
+    // 回车种植
+    if(event == ftxui::Event::Return)
+    {
+        plant(current_select,{cursor_row,cursor_col});
+    }
 }
 
 
