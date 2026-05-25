@@ -260,19 +260,22 @@ make
 
 ## 主菜单
 
-（这里放截图）
+<img width="523" height="1265" alt="image" src="https://github.com/user-attachments/assets/6da17109-5293-4ddd-9882-71ce86a81470" />
+
 
 ---
 
 ## 游戏界面
 
-（这里放截图）
+<img width="1017" height="1359" alt="image" src="https://github.com/user-attachments/assets/1804f0d0-1d01-4587-9537-af9f91a9b40d" />
+
 
 ---
 
 ## 游戏结束
 
-（这里放截图）
+<img width="1255" height="1364" alt="image" src="https://github.com/user-attachments/assets/45debc01-3440-424a-ad9a-c16164be0aef" />
+
 
 ---
 
